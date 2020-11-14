@@ -4,7 +4,7 @@ package blog;
 
 option go_package = "blogpb";
 
-message Blog {
+message Post {
     string id = 1;
     string author_id = 2;
     string title = 3;
