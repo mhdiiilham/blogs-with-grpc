@@ -2,17 +2,16 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 
+	mongodbConn "blogs/server/mongodb"
 	blogpb "blogs/server/protos"
 
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 )
 
@@ -28,7 +27,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// Connection to MongoDB
-	client, collection := mongoDBConnection()
+	client, collection := mongodbConn.NewMongoDBConnection()
 
 	// Blogs server instance
 	blogServer := newServer(collection)
@@ -65,24 +64,4 @@ func newServer(mongoDBCollection *mongo.Collection) *server {
 		Address:    os.Getenv("SERVER_ADDRESS"),
 		Collection: mongoDBCollection,
 	}
-}
-
-func mongoDBConnection() (*mongo.Client, *mongo.Collection) {
-	log.Println("Connection to MongoDB")
-
-	mongoURI := fmt.Sprintf(
-		"mongodb+srv://%s:%s@cluster0.ub9ns.mongodb.net/%s?retryWrites=true&w=majority",
-		os.Getenv("MONGO_DB_USER"),
-		os.Getenv("MONGO_DB_PASS"),
-		os.Getenv("MONGO_DB_DB"),
-	)
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
-	if err != nil {
-		log.Fatalf("Cannot connect to MongoDB: %v", err)
-	}
-	if err := client.Connect(context.TODO()); err != nil {
-		log.Fatal(err)
-	}
-	collection := client.Database(os.Getenv("MONGO_DB")).Collection(os.Getenv("MONGO_DB_COLLECTION"))
-	return client, collection
 }
