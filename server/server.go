@@ -28,7 +28,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// Connection to MongoDB
-	collection := mongoDBConnection()
+	client, collection := mongoDBConnection()
 
 	// Blogs server instance
 	blogServer := newServer(collection)
@@ -40,7 +40,7 @@ func main() {
 	s := grpc.NewServer()
 	blogpb.RegisterBlogServiceServer(s, blogServer)
 	go func() {
-		fmt.Println("Starting server")
+		log.Println("Starting server")
 		if err := s.Serve(lis); err != nil {
 			log.Fatalf("Failed to server: %v", err)
 		}
@@ -48,13 +48,18 @@ func main() {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
 	<-ch
-	fmt.Println("Stopping the server")
+
+	log.Println("Stopping the server")
 	s.Stop()
-	fmt.Println("Closing listener")
+	log.Println("Closing listener")
 	lis.Close()
+	log.Println("Disconnection from MongoDB")
+	client.Disconnect(context.TODO())
 }
 
 func newServer(mongoDBCollection *mongo.Collection) *server {
+	log.Println("Function newServer invoked")
+
 	return &server{
 		Network:    os.Getenv("SERVER_NETWORK"),
 		Address:    os.Getenv("SERVER_ADDRESS"),
@@ -62,7 +67,9 @@ func newServer(mongoDBCollection *mongo.Collection) *server {
 	}
 }
 
-func mongoDBConnection() *mongo.Collection {
+func mongoDBConnection() (*mongo.Client, *mongo.Collection) {
+	log.Println("Connection to MongoDB")
+
 	mongoURI := fmt.Sprintf(
 		"mongodb+srv://%s:%s@cluster0.ub9ns.mongodb.net/%s?retryWrites=true&w=majority",
 		os.Getenv("MONGO_DB_USER"),
@@ -77,5 +84,5 @@ func mongoDBConnection() *mongo.Collection {
 		log.Fatal(err)
 	}
 	collection := client.Database(os.Getenv("MONGO_DB")).Collection(os.Getenv("MONGO_DB_COLLECTION"))
-	return collection
+	return client, collection
 }
