@@ -1,6 +1,7 @@
 package main
 
 import (
+	"blogs/server/entity/blog"
 	"context"
 	"log"
 	"net"
@@ -32,8 +33,15 @@ func main() {
 		cfg.MONGO_DB_COLLECTION,
 	)
 
+	blogRepo := blog.NewMongoDBRepository(collection)
+	blogManager := blog.NewManager(blogRepo)
+
 	// Blogs server instance
-	blogServer := service.NewService(cfg.SERVER_NETWORK, cfg.SERVER_ADDRESS, collection)
+	blogServer := service.NewService(
+		cfg.SERVER_NETWORK,
+		cfg.SERVER_ADDRESS,
+		blogManager,
+	)
 
 	lis, err := net.Listen(blogServer.Network, blogServer.Address)
 	if err != nil {
