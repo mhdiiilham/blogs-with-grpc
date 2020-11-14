@@ -11,4 +11,15 @@ message Post {
     string content = 4;
 }
 
-service BlogService {}
+message CreatePostRequest {
+    Post post = 1;
+}
+
+message CreatePostResponse {
+    string message = 1;
+    Post post = 2;
+}
+
+service BlogService {
+    rpc CreatePost (CreatePostRequest) returns (CreatePostResponse) {};
+}
