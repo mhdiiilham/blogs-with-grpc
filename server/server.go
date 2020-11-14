@@ -38,7 +38,7 @@ func main() {
 		log.Fatalf("Failed to listen to port 50051. Error: %v", err)
 	}
 	s := grpc.NewServer()
-	blogpb.RegisterBlogServiceServer(s, &blogServer)
+	blogpb.RegisterBlogServiceServer(s, blogServer)
 	go func() {
 		fmt.Println("Starting server")
 		if err := s.Serve(lis); err != nil {
