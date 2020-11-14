@@ -13,6 +13,7 @@ import (
 	"blogs/server/service"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -39,6 +40,7 @@ func main() {
 		log.Fatalf("Failed to listen to port 50051. Error: %v", err)
 	}
 	s := grpc.NewServer()
+	reflection.Register(s)
 	blogpb.RegisterBlogServiceServer(s, blogServer)
 	go func() {
 		log.Println("Starting server")
