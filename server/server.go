@@ -7,30 +7,32 @@ import (
 	"os"
 	"os/signal"
 
+	"blogs/server/config"
 	mongodbConn "blogs/server/mongodb"
 	blogpb "blogs/server/protos"
+	"blogs/server/service"
 
-	_ "github.com/joho/godotenv/autoload"
-	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 )
-
-type server struct {
-	Network    string
-	Address    string
-	Collection *mongo.Collection
-}
 
 func main() {
 	// if we crash the go code,
 	// we get the file and line number
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
+	// config variables
+	cfg := config.LoadVariables()
+
 	// Connection to MongoDB
-	client, collection := mongodbConn.NewMongoDBConnection()
+	client, collection := mongodbConn.NewMongoDBConnection(
+		cfg.MONGO_DB_USER,
+		cfg.MONGO_DB_PASS,
+		cfg.MONGO_DB,
+		cfg.MONGO_DB_COLLECTION,
+	)
 
 	// Blogs server instance
-	blogServer := newServer(collection)
+	blogServer := service.NewService(cfg.SERVER_NETWORK, cfg.SERVER_ADDRESS, collection)
 
 	lis, err := net.Listen(blogServer.Network, blogServer.Address)
 	if err != nil {
@@ -54,14 +56,4 @@ func main() {
 	lis.Close()
 	log.Println("Disconnection from MongoDB")
 	client.Disconnect(context.TODO())
-}
-
-func newServer(mongoDBCollection *mongo.Collection) *server {
-	log.Println("Function newServer invoked")
-
-	return &server{
-		Network:    os.Getenv("SERVER_NETWORK"),
-		Address:    os.Getenv("SERVER_ADDRESS"),
-		Collection: mongoDBCollection,
-	}
 }
