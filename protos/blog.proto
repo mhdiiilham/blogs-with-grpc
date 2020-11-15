@@ -15,11 +15,23 @@ message CreatePostRequest {
     Post post = 1;
 }
 
+message ReadPostRequest {
+    string id = 1;
+}
+
 message CreatePostResponse {
     string message = 1;
     Post post = 2;
 }
 
+message ReadPostResponse {
+    Post post = 1;
+}
+
 service BlogService {
     rpc CreatePost (CreatePostRequest) returns (CreatePostResponse) {};
+
+    // return NOT_FOUND if there if not found
+    // return INVALID_ARGUMENT if objectID is not correct
+    rpc ReadPost (ReadPostRequest) returns (ReadPostResponse) {};
 }
