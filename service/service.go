@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
-	"blogs/server/entity/blog"
-	blogpb "blogs/server/protos"
+	"blogs/entity/blog"
+	blogpb "blogs/protos"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -40,7 +40,6 @@ func NewService(network, address string, blogManager blog.Manager) *Server {
 // CreatePost Handler
 func (s *Server) CreatePost(ctx context.Context, req *blogpb.CreatePostRequest) (*blogpb.CreatePostResponse, error) {
 	data := req.GetPost()
-
 	post := blog.Post{
 		AuthorID: data.GetAuthorId(),
 		Title:    data.GetTitle(),

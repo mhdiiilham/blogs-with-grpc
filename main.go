@@ -1,17 +1,17 @@
 package main
 
 import (
-	"blogs/server/entity/blog"
+	"blogs/entity/blog"
 	"context"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 
-	"blogs/server/config"
-	mongodbConn "blogs/server/mongodb"
-	blogpb "blogs/server/protos"
-	"blogs/server/service"
+	"blogs/config"
+	mongodbConn "blogs/mongodb"
+	blogpb "blogs/protos"
+	"blogs/service"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
