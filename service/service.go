@@ -99,3 +99,33 @@ func (s *Server) ReadPost(ctx context.Context, req *blogpb.ReadPostRequest) (*bl
 		},
 	}, nil
 }
+
+// UpdatePostTitle handler
+func (s *Server) UpdatePostTitle(ctx context.Context, req *blogpb.UpdatePostRequest) (*blogpb.UpdatePostResponse, error) {
+
+	oid, err := primitive.ObjectIDFromHex(req.GetId())
+	if err != nil {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			"Invalid Post ID",
+		)
+	}
+
+	newPost, err := s.Manager.UpdateTitle(oid, req.GetNewTitle())
+	if err != nil {
+		log.Println("Error Occur: ", err.Error())
+		return nil, status.Errorf(
+			codes.NotFound,
+			err.Error(),
+		)
+	}
+
+	return &blogpb.UpdatePostResponse{
+		Post: &blogpb.Post{
+			Id:       newPost.ID.Hex(),
+			AuthorId: newPost.AuthorID,
+			Title:    req.GetNewTitle(),
+			Content:  newPost.Content,
+		},
+	}, nil
+}
