@@ -1,18 +1,20 @@
 package main
 
 import (
+	"blogs/entity/blog"
 	"context"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 
-	"blogs/server/config"
-	mongodbConn "blogs/server/mongodb"
-	blogpb "blogs/server/protos"
-	"blogs/server/service"
+	"blogs/config"
+	mongodbConn "blogs/mongodb"
+	blogpb "blogs/protos"
+	"blogs/service"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -31,14 +33,22 @@ func main() {
 		cfg.MONGO_DB_COLLECTION,
 	)
 
+	blogRepo := blog.NewMongoDBRepository(collection)
+	blogManager := blog.NewManager(blogRepo)
+
 	// Blogs server instance
-	blogServer := service.NewService(cfg.SERVER_NETWORK, cfg.SERVER_ADDRESS, collection)
+	blogServer := service.NewService(
+		cfg.SERVER_NETWORK,
+		cfg.SERVER_ADDRESS,
+		blogManager,
+	)
 
 	lis, err := net.Listen(blogServer.Network, blogServer.Address)
 	if err != nil {
 		log.Fatalf("Failed to listen to port 50051. Error: %v", err)
 	}
 	s := grpc.NewServer()
+	reflection.Register(s)
 	blogpb.RegisterBlogServiceServer(s, blogServer)
 	go func() {
 		log.Println("Starting server")

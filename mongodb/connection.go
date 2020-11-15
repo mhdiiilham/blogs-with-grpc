@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -29,6 +28,6 @@ func NewMongoDBConnection(user, pass, db, collection string) (*mongo.Client, *mo
 	if err := client.Connect(context.TODO()); err != nil {
 		log.Fatal(err)
 	}
-	mongoCollection := client.Database(os.Getenv(db)).Collection(os.Getenv(collection))
+	mongoCollection := client.Database(db).Collection(collection)
 	return client, mongoCollection
 }
