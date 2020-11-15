@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -35,4 +36,15 @@ func (r *MongoDBRepo) Create(post Post) string {
 	}
 
 	return oid.Hex()
+}
+
+// GetOne Function
+func (r *MongoDBRepo) GetOne(id primitive.ObjectID) (*Post, error) {
+	var post Post
+
+	if err := r.Collection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&post); err != nil {
+		return nil, err
+	}
+
+	return &post, nil
 }
