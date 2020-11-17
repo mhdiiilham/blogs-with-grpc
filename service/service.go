@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"log"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -128,4 +129,61 @@ func (s *Server) UpdatePostTitle(ctx context.Context, req *blogpb.UpdatePostRequ
 			Content:  newPost.Content,
 		},
 	}, nil
+}
+
+// Find handler
+func (s *Server) Find(ctx context.Context, req *blogpb.FindRequest) (*blogpb.FindResponse, error) {
+	var res []*blogpb.Post
+
+	posts, err := s.Manager.Find()
+
+	if err != nil {
+		log.Println("Error: ", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			"Internal Error",
+		)
+	}
+
+	for _, post := range posts {
+		res = append(res, &blogpb.Post{
+			Id:       post.ID.Hex(),
+			AuthorId: post.AuthorID,
+			Title:    post.Title,
+			Content:  post.Content,
+		})
+	}
+
+	return &blogpb.FindResponse{
+		Post: res,
+	}, nil
+}
+
+// List handler
+func (s *Server) List(req *blogpb.ListRequest, stream blogpb.BlogService_ListServer) error {
+	log.Println("List all blog collections. Req: ", req)
+
+	posts, err := s.Manager.Find()
+	if err != nil {
+		log.Println("Error: ", err)
+		return status.Errorf(
+			codes.Internal,
+			"Internal Error",
+		)
+	}
+
+	for _, post := range posts {
+		log.Println("Sending:", post.ID.Hex())
+		stream.Send(&blogpb.ListResponse{
+			Post: &blogpb.Post{
+				Id:       post.ID.Hex(),
+				AuthorId: post.AuthorID,
+				Title:    post.Title,
+				Content:  post.Content,
+			},
+		})
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	return nil
 }

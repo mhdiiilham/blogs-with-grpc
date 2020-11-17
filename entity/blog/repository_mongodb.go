@@ -62,3 +62,19 @@ func (r *MongoDBRepo) UpdateTitle(id primitive.ObjectID, newTitle string) (*Post
 	}
 	return &post, nil
 }
+
+// Find all posts
+func (r *MongoDBRepo) Find() ([]*Post, error) {
+	var posts []*Post
+	filter := bson.M{}
+	cursor, err := r.Collection.Find(r.Ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cursor.All(r.Ctx, &posts); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}

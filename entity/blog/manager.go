@@ -29,3 +29,8 @@ func (s *manager) GetOne(id primitive.ObjectID) (*Post, error) {
 func (s *manager) UpdateTitle(id primitive.ObjectID, newTitle string) (*Post, error) {
 	return s.Repo.UpdateTitle(id, newTitle)
 }
+
+// Find all posts
+func (s *manager) Find() ([]*Post, error) {
+	return s.Repo.Find()
+}

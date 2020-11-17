@@ -11,6 +11,7 @@ type Writer interface {
 // Reader Interface
 type Reader interface {
 	GetOne(id primitive.ObjectID) (*Post, error)
+	Find() ([]*Post, error)
 }
 
 // Repository interface
