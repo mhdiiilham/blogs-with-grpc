@@ -24,6 +24,12 @@ message UpdatePostRequest {
     string new_title = 2;
 }
 
+message FindRequest {
+}
+
+message ListRequest {
+}
+
 message CreatePostResponse {
     string message = 1;
     Post post = 2;
@@ -37,6 +43,14 @@ message UpdatePostResponse {
     Post post = 1;
 }
 
+message FindResponse {
+    repeated Post post = 1;
+}
+
+message ListResponse {
+    Post post = 1;
+}
+
 service BlogService {
     rpc CreatePost (CreatePostRequest) returns (CreatePostResponse) {};
 
@@ -47,4 +61,8 @@ service BlogService {
     // return NOT_FOUND if there if not found
     // return INVALID_ARGUMENT if objectID is not correct
     rpc UpdatePostTitle(UpdatePostRequest) returns (UpdatePostResponse) {};
+
+    rpc Find(FindRequest) returns (FindResponse) {};
+
+    rpc List(ListRequest) returns (stream ListResponse) {};
 }
