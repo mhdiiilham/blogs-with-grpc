@@ -23,7 +23,10 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// config variables
-	cfg := config.LoadVariables()
+	cfg, envErr := config.LoadVariables()
+	if envErr != nil {
+		panic(envErr)
+	}
 
 	// Connection to MongoDB
 	client, collection, mongoErr := mongodbConn.NewMongoDBConnection(
