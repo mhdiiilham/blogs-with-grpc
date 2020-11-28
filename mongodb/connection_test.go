@@ -10,7 +10,7 @@ import (
 )
 
 func TestSuccessCreateMongoDBConnection(t *testing.T) {
-	cfg := config.LoadVariables()
+	cfg, _ := config.LoadVariables("../.env")
 	client, collection, err := NewMongoDBConnection(
 		cfg.MONGO_DB_USER,
 		cfg.MONGO_DB_PASS,
