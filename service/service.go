@@ -43,6 +43,14 @@ func NewService(network, address string, blogManager blog.Manager) *Server {
 // CreatePost Handler
 func (s *Server) CreatePost(ctx context.Context, req *blogpb.CreatePostRequest) (*blogpb.CreatePostResponse, error) {
 	data := req.GetPost()
+
+	if data.GetAuthorId() == "" || data.GetTitle() == "" || data.GetContent() == "" {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			"You Must Input All Required Fields",
+		)
+	}
+
 	post := blog.Post{
 		AuthorID: data.GetAuthorId(),
 		Title:    data.GetTitle(),
