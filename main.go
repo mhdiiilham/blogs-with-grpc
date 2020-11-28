@@ -26,12 +26,16 @@ func main() {
 	cfg := config.LoadVariables()
 
 	// Connection to MongoDB
-	client, collection := mongodbConn.NewMongoDBConnection(
+	client, collection, mongoErr := mongodbConn.NewMongoDBConnection(
 		cfg.MONGO_DB_USER,
 		cfg.MONGO_DB_PASS,
 		cfg.MONGO_DB,
 		cfg.MONGO_DB_COLLECTION,
 	)
+
+	if mongoErr != nil {
+		panic("MongoDB Connection Error")
+	}
 
 	blogRepo := blog.NewMongoDBRepository(collection)
 	blogManager := blog.NewManager(blogRepo)

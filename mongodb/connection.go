@@ -11,7 +11,7 @@ import (
 
 // NewMongoDBConnection function
 // to create new connection (WTF??)
-func NewMongoDBConnection(user, pass, db, collection string) (*mongo.Client, *mongo.Collection) {
+func NewMongoDBConnection(user, pass, db, collection string) (*mongo.Client, *mongo.Collection, error) {
 	log.Println("Connection to MongoDB")
 
 	mongoURI := fmt.Sprintf(
@@ -24,10 +24,12 @@ func NewMongoDBConnection(user, pass, db, collection string) (*mongo.Client, *mo
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatalf("Cannot connect to MongoDB: %v", err)
+		return nil, nil, err
 	}
 	if err := client.Connect(context.TODO()); err != nil {
 		log.Fatal(err)
+		return nil, nil, err
 	}
 	mongoCollection := client.Database(db).Collection(collection)
-	return client, mongoCollection
+	return client, mongoCollection, nil
 }
